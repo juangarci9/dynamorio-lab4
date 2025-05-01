@@ -4,6 +4,11 @@
 #include <stdint.h>
 #include "drmgr.h"
 
+extern void *__libc_malloc(size_t size);
+extern void *__libc_calloc(size_t nmemb, size_t size);
+extern void *__libc_realloc(void *ptr, size_t size);
+extern void __libc_free(void *ptr);
+
 #define MAX_ALLOCS 4096
 
 typedef struct {
@@ -42,6 +47,19 @@ dr_client_main(client_id_t id, int argc, const char *argv[]) {
     }
     if (!drwrap_wrap_ex((app_pc)realloc, wrap_malloc_pre, wrap_malloc_post, NULL, 0)) {
         dr_fprintf(STDERR, "Failed to wrap realloc\n");
+    }
+    // Internal libc wrappers — used more often than you'd expect
+    if (!drwrap_wrap_ex((app_pc)__libc_malloc, wrap_malloc_pre, wrap_malloc_post, NULL, 0)) {
+        dr_fprintf(STDERR, "Failed to wrap __libc_malloc\n");
+    }
+    if (!drwrap_wrap_ex((app_pc)__libc_calloc, wrap_malloc_pre, wrap_malloc_post, NULL, 0)) {
+        dr_fprintf(STDERR, "Failed to wrap __libc_calloc\n");
+    }
+    if (!drwrap_wrap_ex((app_pc)__libc_realloc, wrap_malloc_pre, wrap_malloc_post, NULL, 0)) {
+        dr_fprintf(STDERR, "Failed to wrap __libc_realloc\n");
+    }
+    if (!drwrap_wrap_ex((app_pc)__libc_free, wrap_free_pre, NULL, NULL, 0)) {
+        dr_fprintf(STDERR, "Failed to wrap __libc_free\n");
     }
 }
 
