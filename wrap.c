@@ -37,6 +37,12 @@ dr_client_main(client_id_t id, int argc, const char *argv[]) {
     if (!drwrap_wrap_ex((app_pc)free, wrap_free_pre, NULL, NULL, 0)) {
         dr_fprintf(STDERR, "Failed to wrap free\n");
     }
+    if (!drwrap_wrap_ex((app_pc)calloc, wrap_malloc_pre, wrap_malloc_post, NULL, 0)) {
+        dr_fprintf(STDERR, "Failed to wrap calloc\n");
+    }
+    if (!drwrap_wrap_ex((app_pc)realloc, wrap_malloc_pre, wrap_malloc_post, NULL, 0)) {
+        dr_fprintf(STDERR, "Failed to wrap realloc\n");
+    }
 }
 
 static void 
